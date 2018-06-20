@@ -61,32 +61,87 @@ function Merge-DbvPreference {
                     $groupString = 'Drivers'
                     $singularString = 'Driver'
                     $compareProperty = 'Name'
-                    $mergeLower = $false
+                    $compareOperator = ''
                 }
                 'Databases' {
                     $groupString = 'Databases'
                     $singularString = 'Database'
-                    $compareProperty = 'Alias'
-                    $mergeLower = $false
+                    $compareProperty = 'id'
+                    $compareOperator = '@'
                 }
             }
 
+            # add or update from master
             foreach ($masterObject in $masterXml.DbVisualizer.$groupString.GetEnumerator()) {
-                Write-Verbose "Processing $singularString $($masterObject.$compareProperty)"
-                $targetObject = $targetXml |
-                    Select-Xml -XPath "//$singularString[$compareProperty = '$($masterObject.$compareProperty)']" |
-                    Select-Object -ExpandProperty Node
+                Write-Verbose "Should add or update $singularString $($masterObject.$compareProperty)?"
 
+                $xpath = "//$singularString[$compareOperator$compareProperty = '$($masterObject.$compareProperty)']"
+                Write-Verbose "Searching target XML with $xpath"
+                $targetObject = $targetXml |
+                    Select-Xml -XPath $xpath |
+                    Select-Object -ExpandProperty Node -First 1
+
+                # add
                 if (-not $targetObject) {
+                    Write-Verbose "Adding $singularString $compareProperty $($masterObject.$compareProperty)"
+
+                    # add to main section
                     $targetGroup = $targetXml |
                         Select-Xml -XPath "/DbVisualizer/$groupString" |
                         Select-Object -ExpandProperty Node
 
                     $targetGroup.InnerXml += $masterObject.OuterXml
+
+                    # if database, add to target folder
+                    if ($cat -eq 'Databases') {
+                        Write-Verbose "Synchronizing folder $TargetFolder"
+
+                        $objectsXml = $targetXml |
+                            Select-Xml -XPath "/DbVisualizer/Objects" |
+                            Select-Object -ExpandProperty Node
+
+                        if (-not ($objectsXml.Folder | Where-Object { $_.name -eq $TargetFolder }))
+                        {
+                            Write-Verbose "Adding folder $TargetFolder"
+                            $objectsXml.InnerXml += "<Folder name=`"$TargetFolder`"></Folder>"
+                        }
+
+                        $folderXml = $targetXml |
+                            Select-Xml -XPath "/DbVisualizer/Objects/Folder[@name='$TargetFolder']" |
+                            Select-Object -ExpandProperty Node
+
+                        # add to the target folder
+                        Write-Verbose "Adding Database ID $($masterObject.$compareProperty) to $TargetFolder folder"
+                        $folderXml.InnerXml += "<Database id=`"$($masterObject.$compareProperty)`"/>"
+                    }
                 }
+                # update
                 else {
                     Write-Verbose "Updating $singularString $($masterObject.$compareProperty)"
                     $targetObject.InnerXml = $masterObject.InnerXml
+                }
+            }
+
+            # remove from target
+            if ($Category -eq 'Databases') {
+                $targetFolderXml = $targetXml |
+                    Select-Xml -XPath "/DbVisualizer/Objects/Folder[@name='$TargetFolder']" |
+                    Select-Object -ExpandProperty Node -First 1
+
+                foreach ($targetObject in $targetFolderXml.GetEnumerator()) {
+                    Write-Verbose "Should remove $singularString $($targetObject.$compareProperty)?"
+
+                    $xpath = "//$singularString[$compareOperator$compareProperty = '$($targetObject.$compareProperty)']"
+                    Write-Verbose "Searching master XML with $xpath"
+                    $masterObject = $masterXml |
+                        Select-Xml -XPath $xpath |
+                        Select-Object -ExpandProperty Node -First 1
+
+                    # remove
+                    if (-not $masterObject) {
+                        Write-Verbose "Removing $singularString $compareProperty $($targetObject.$compareProperty)"
+                        $targetFolderXml.RemoveChild($targetObject)
+                    }
                 }
             }
         }

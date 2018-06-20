@@ -342,7 +342,7 @@
     </Driver>
   </Drivers>
   <Databases>
-    <Database id="2">
+    <Database id="101">
       <Alias>FakeDatabaseToUpdate</Alias>
       <Notes />
       <Url />
@@ -377,8 +377,43 @@
         <SshPassphrase />
       </SshSettings>
     </Database>
-    <Database id="3">
+    <Database id="1">
       <Alias>FakeDatabaseToNotRemove</Alias>
+      <Notes />
+      <Url />
+      <Driver>SQL Server (Microsoft)</Driver>
+      <Userid />
+      <Profile>auto</Profile>
+      <Type>sqlserver</Type>
+      <Password></Password>
+      <ServerInfoFormat>1</ServerInfoFormat>
+      <Properties>
+        <Property key="integratedSecurity">true</Property>
+        <Property key="dbvis.ConnectionBorder">Red.png</Property>
+        <Property key="dbvis.ConnectionMode">Production</Property>
+      </Properties>
+      <UrlFormat>0</UrlFormat>
+      <UrlVariables>
+        <Driver>
+          SQL Server (Microsoft)
+          <UrlVariable UrlVariableName="Server">FakeServer</UrlVariable>
+          <UrlVariable UrlVariableName="Port">1433</UrlVariable>
+          <UrlVariable UrlVariableName="Database">FakeDatabase</UrlVariable>
+          <UrlVariable UrlVariableName="Instance" />
+        </Driver>
+      </UrlVariables>
+      <SshSettings>
+        <SshEnabled>false</SshEnabled>
+        <SshHost />
+        <SshPort>22</SshPort>
+        <SshUserid />
+        <SshPassword />
+        <SshPrivateKeyFile />
+        <SshPassphrase />
+      </SshSettings>
+    </Database>
+    <Database id="102">
+      <Alias>FakeDatabaseToRemove</Alias>
       <Notes />
       <Url />
       <Driver>SQL Server (Microsoft)</Driver>
@@ -414,9 +449,10 @@
     </Database>
   </Databases>
   <Objects>
-    <Folder name="SQL Server">
-      <Database id="1" />
+    <Folder name="Managed">
+      <Database id="101" />
+      <Database id="102" />
     </Folder>
-    <Folder name="DB2 z/OS" />
+    <Database id="1" />
   </Objects>
 </DbVisualizer>

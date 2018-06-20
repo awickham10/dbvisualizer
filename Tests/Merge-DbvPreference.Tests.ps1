@@ -129,7 +129,11 @@ Describe 'Merge-DbvPreference Tests' {
                 Assert-MockCalled -CommandName 'Save-DbvXml' -Times 1
 
                 $updated = $script:updatedXml.DbVisualizer.Databases.Database | Where-Object { $_.Alias -eq $databaseAlias }
-                $master.Alias | Should -Be $updated.Alias
+                $updated.Alias | Should -Be $master.Alias
+
+                $updatedFolder = $script:updatedXml.DbVisualizer.Objects.Folder | Where-Object { $_.Name -eq 'Managed' }
+                $updatedFolderDb = $updatedFolder.Database | Where-Object { $_.id -eq $master.id }
+                $updatedFolderDb.id | Should -Be $master.id
             }
 
             It 'Updates' {
@@ -152,7 +156,27 @@ Describe 'Merge-DbvPreference Tests' {
                 $afterServer.'#text' | Should -Be $masterServer.'#text'
             }
 
-            It "Doesn't remove" {
+            It "Removes" {
+                $id = '102'
+                $targetFolder = 'Managed'
+
+                $masterFolder = $masterXml.DbVisualizer.Objects.Folder | Where-Object { $_.name -eq $targetFolder }
+                $master = $masterFolder.Database | Where-Object { $_.id -eq $id }
+                $master | Should -BeNullOrEmpty
+
+                $targetFolderObj = $targetXml.DbVisualizer.Objects.Folder | Where-Object { $_.name -eq $targetFolder }
+                $target = $targetFolderObj.Database | Where-Object { $_.id -eq $id }
+                $target | Should -Not -BeNullOrEmpty
+
+                Merge-DbvPreference -Category 'Databases' -MasterPath $masterPath -TargetPath $targetPath -TargetFolder $targetFolder
+                Assert-MockCalled -CommandName 'Save-DbvXml' -Times 1
+
+                $updatedFolder = $script:updatedXml.DbVisualizer.Objects.Folder | Where-Object { $_.Name -eq $targetFolder }
+                $updatedFolderDb = $updatedFolder.Database | Where-Object { $_.id -eq $id }
+                $updatedFolderDb | Should -BeNullOrEmpty
+            }
+
+            It "Doesn't remove connections outside the folder" {
                 $databaseAlias = 'FakeDatabaseToNotRemove'
 
                 $master = $masterXml.DbVisualizer.Databases.Database | Where-Object { $_.Alias -eq $databaseAlias }
