@@ -103,7 +103,7 @@ function Merge-DbvPreference {
                         if (-not ($objectsXml.Folder | Where-Object { $_.name -eq $TargetFolder }))
                         {
                             Write-Verbose "Adding folder $TargetFolder"
-                            $objectsXml.InnerXml += "<Folder name=`"$TargetFolder`"></Folder>"
+                            $objectsXml.InnerXml = "<Folder name=`"$TargetFolder`"></Folder>" + $objectsXml.InnerXml
                         }
 
                         $folderXml = $targetXml |
