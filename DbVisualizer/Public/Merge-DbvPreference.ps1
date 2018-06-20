@@ -75,7 +75,7 @@ function Merge-DbvPreference {
             foreach ($masterObject in $masterXml.DbVisualizer.$groupString.GetEnumerator()) {
                 Write-Verbose "Should add or update $singularString $($masterObject.$compareProperty)?"
 
-                $xpath = "//$singularString[$compareOperator$compareProperty = '$($masterObject.$compareProperty)']"
+                $xpath = "/DbVisualizer/$groupString/$singularString[$compareOperator$compareProperty = '$($masterObject.$compareProperty)']"
                 Write-Verbose "Searching target XML with $xpath"
                 $targetObject = $targetXml |
                     Select-Xml -XPath $xpath |
@@ -131,7 +131,7 @@ function Merge-DbvPreference {
                 foreach ($targetObject in $targetFolderXml.GetEnumerator()) {
                     Write-Verbose "Should remove $singularString $($targetObject.$compareProperty)?"
 
-                    $xpath = "//$singularString[$compareOperator$compareProperty = '$($targetObject.$compareProperty)']"
+                    $xpath = "/DbVisualizer/$groupString/$singularString[$compareOperator$compareProperty = '$($targetObject.$compareProperty)']"
                     Write-Verbose "Searching master XML with $xpath"
                     $masterObject = $masterXml |
                         Select-Xml -XPath $xpath |
