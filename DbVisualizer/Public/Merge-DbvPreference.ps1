@@ -11,17 +11,26 @@ Path to the XML file to read connections from.
 .PARAMETER TargetPath
 Path to the XML file to update.
 
+.PARAMETER TargetFolder
+When merging connections, the target folder to put connections in.
+
+.EXAMPLE
+Updates the user's DbVisualizer drivers from a master file.
+
+Merge-DbvPreference -Category 'Drivers' -MasterPath '\\server\FileShare\dbvis.master.xml' -TargetPath '%AppData%\.dbvis\config70\dbvis.xml'
+
 .EXAMPLE
 Updates the user's DbVisualizer connections from a master file.
 
-Merge-DbvConnection -MasterPath '\\server\FileShare\dbvis.master.xml' -TargetPath '%AppData%\.dbvis\config70\dbvis.xml'
+Merge-DbvPreference -Category 'Databases' -MasterPath '\\server\FileShare\dbvis.master.xml' -TargetPath '%AppData%\.dbvis\config70\dbvis.xml' -TargetFolder 'Managed'
 
 #>
 function Merge-DbvPreference {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [ValidateSet('Drivers', 'Databases', 'Folders')]
+        [ValidateNotNullOrEmpty()]
+        [ValidateSet('Drivers', 'Databases')]
         [string[]] $Category,
 
         [Parameter(Mandatory = $true)]
@@ -30,7 +39,10 @@ function Merge-DbvPreference {
 
         [Parameter(Mandatory = $true)]
         [ValidateScript({ Test-Path -Path $_ })]
-        [string] $TargetPath
+        [string] $TargetPath,
+
+        [Parameter()]
+        [string] $TargetFolder
     )
 
     begin {
@@ -40,6 +52,10 @@ function Merge-DbvPreference {
 
     process {
         foreach ($cat in $Category) {
+            if ($cat -eq 'Databases' -and (-not $PSBoundParameters.ContainsKey('TargetFolder') -or $TargetFolder -eq '')) {
+                throw 'When merging databases you must specify a target folder. Merging into the root folder is not supported.'
+            }
+
             switch ($cat) {
                 'Drivers' {
                     $groupString = 'Drivers'
@@ -52,11 +68,6 @@ function Merge-DbvPreference {
                     $singularString = 'Database'
                     $compareProperty = 'Alias'
                     $mergeLower = $false
-                }
-                'Folders' {
-                    $groupString = 'Objects'
-                    $singularString = 'Folder'
-                    $compareProperty = 'name'
                 }
             }
 

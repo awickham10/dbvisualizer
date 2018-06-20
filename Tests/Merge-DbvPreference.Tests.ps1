@@ -4,6 +4,11 @@ Describe 'Merge-DbvPreference Tests' {
     InModuleScope -ModuleName 'DbVisualizer' {
         Context 'Command Usage' {
             $command = Get-Command -Module 'DbVisualizer' -Name 'Merge-DbvPreference'
+
+            It 'Should havve a Category parameter' {
+                $command.Parameters.ContainsKey('Category') | Should Be $true
+            }
+
             It 'Should have a MasterPath parameter' {
                 $command.Parameters.ContainsKey('MasterPath') | Should Be $true
             }
@@ -12,7 +17,7 @@ Describe 'Merge-DbvPreference Tests' {
             Mock -CommandName 'Test-Path' -ParameterFilter { $Path -eq 'C:\MadeUpTargetPath.xml' } -MockWith { $true }
 
             It 'Should validate MasterPath existence' {
-                { Merge-DbvPreference -MasterPath 'C:\MadeUpMasterPath.xml' -TargetPath 'C:\MadeUpTargetPath.xml' } | Should Throw
+                { Merge-DbvPreference -Category 'Drivers' -MasterPath 'C:\MadeUpMasterPath.xml' -TargetPath 'C:\MadeUpTargetPath.xml' } | Should Throw
                 Assert-MockCalled -CommandName 'Test-Path' -ParameterFilter { $Path -eq 'C:\MadeUpMasterPath.xml' } -Times 1
             }
 
@@ -20,14 +25,25 @@ Describe 'Merge-DbvPreference Tests' {
                 $command.Parameters.ContainsKey('TargetPath') | Should Be $true
             }
 
+            It 'Should have a TargetFolder parameter' {
+                $command.Parameters.ContainsKey('TargetFolder') | Should Be $true
+            }
+
             Mock -CommandName 'Test-Path' -ParameterFilter { $Path -eq 'C:\MadeUpMasterPath.xml' } -MockWith { $true }
             Mock -CommandName 'Test-Path' -ParameterFilter { $Path -eq 'C:\MadeUpTargetPath.xml' } -MockWith { $false }
 
             It 'Should validate TargetPath existence' {
                 Mock -CommandName 'Test-Path' -ParameterFilter { $Path -eq 'C:\MadeUpMasterPath.xml' } -MockWith { $true }
-                { Merge-DbvPreference -MasterPath 'C:\MadeUpMasterPath.xml' -TargetPath 'C:\MadeUpTargetPath.xml' } | Should Throw
+                { Merge-DbvPreference -Category 'Drivers' -MasterPath 'C:\MadeUpMasterPath.xml' -TargetPath 'C:\MadeUpTargetPath.xml' } | Should Throw
 
                 Assert-MockCalled -CommandName 'Test-Path' -ParameterFilter { $Path -eq 'C:\MadeUpMasterPath.xml' } -Times 1
+            }
+
+            It 'Should enforce usage of TargetFolder when Category is Databases' {
+                { Merge-DbvPreference -Category 'Databases' -MasterPath 'C:\MadeUpMasterPath.xml' -TargetPath 'C:\MadeUpTargetPath.xml' } | Should Throw
+
+                Assert-MockCalled -CommandName 'Test-Path' -ParameterFilter { $Path -eq 'C:\MadeUpMasterPath.xml' } -Times 1
+                Assert-MockCalled -CommandName 'Test-Path' -ParameterFilter { $Path -eq 'C:\MadeUpTargetPath.xml' } -Times 1
             }
         }
 
@@ -109,7 +125,7 @@ Describe 'Merge-DbvPreference Tests' {
                 $target = $targetXml.DbVisualizer.Databases.Database | Where-Object { $_.Alias -eq $databaseAlias }
                 $target | Should -BeNullOrEmpty
 
-                Merge-DbvPreference -Category 'Databases' -MasterPath $masterPath -TargetPath $targetPath
+                Merge-DbvPreference -Category 'Databases' -MasterPath $masterPath -TargetPath $targetPath -TargetFolder 'Managed'
                 Assert-MockCalled -CommandName 'Save-DbvXml' -Times 1
 
                 $updated = $script:updatedXml.DbVisualizer.Databases.Database | Where-Object { $_.Alias -eq $databaseAlias }
@@ -127,7 +143,7 @@ Describe 'Merge-DbvPreference Tests' {
 
                 $masterServer.'#text' | Should -Not -Be $targetServer.'#text'
 
-                Merge-DbvPreference -Category 'Databases' -MasterPath $masterPath -TargetPath $targetPath
+                Merge-DbvPreference -Category 'Databases' -MasterPath $masterPath -TargetPath $targetPath -TargetFolder 'Managed'
                 Assert-MockCalled -CommandName 'Save-DbvXml' -Times 1
 
                 $after = $script:updatedXml.DbVisualizer.Databases.Database | Where-Object { $_.Alias -eq $databaseAlias }
@@ -145,7 +161,7 @@ Describe 'Merge-DbvPreference Tests' {
                 $target = $targetXml.DbVisualizer.Databases.Database | Where-Object { $_.Alias -eq $databaseAlias }
                 $target | Should -Not -BeNullOrEmpty
 
-                Merge-DbvPreference -Category 'Databases' -MasterPath $masterPath -TargetPath $targetPath
+                Merge-DbvPreference -Category 'Databases' -MasterPath $masterPath -TargetPath $targetPath -TargetFolder 'Managed'
                 Assert-MockCalled -CommandName 'Save-DbvXml' -Times 1
 
                 $updated = $script:updatedXml.DbVisualizer.Databases.Database | Where-Object { $_.Alias -eq $databaseAlias }
