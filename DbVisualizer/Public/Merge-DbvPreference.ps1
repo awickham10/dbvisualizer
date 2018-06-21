@@ -93,6 +93,7 @@ function Merge-DbvPreference {
                     $targetGroup.InnerXml += $masterObject.OuterXml
 
                     # if database, add to target folder
+                    <#
                     if ($cat -eq 'Databases') {
                         Write-Verbose "Synchronizing folder $TargetFolder"
 
@@ -114,6 +115,7 @@ function Merge-DbvPreference {
                         Write-Verbose "Adding Database ID $($masterObject.$compareProperty) to $TargetFolder folder"
                         $folderXml.InnerXml += "<Database id=`"$($masterObject.$compareProperty)`"/>"
                     }
+                    #>
                 }
                 # update
                 else {
@@ -122,8 +124,31 @@ function Merge-DbvPreference {
                 }
             }
 
-            # remove from target
             if ($Category -eq 'Databases') {
+                # replace folder
+                Write-Verbose "Replacing $TargetFolder folder"
+
+                $objectsXml = $targetXml |
+                    Select-Xml -XPath "/DbVisualizer/Objects" |
+                    Select-Object -ExpandProperty Node
+
+                if (-not ($objectsXml.Folder | Where-Object { $_.name -eq $TargetFolder }))
+                {
+                    Write-Verbose "Adding folder $TargetFolder"
+                    $objectsXml.InnerXml = "<Folder name=`"$TargetFolder`"></Folder>" + $objectsXml.InnerXml
+                }
+
+                $folderXml = $targetXml |
+                    Select-Xml -XPath "/DbVisualizer/Objects/Folder[@name='$TargetFolder']" |
+                    Select-Object -ExpandProperty Node
+
+                $masterFolderXml = $masterXml |
+                    Select-Xml -XPath "/DbVisualizer/Objects/Folder[@name='$TargetFolder']" |
+                    Select-Object -ExpandProperty Node
+
+                $folderXml.InnerXml  = $masterFolderXml.InnerXml
+
+                # remove from target
                 $targetFolderXml = $targetXml |
                     Select-Xml -XPath "/DbVisualizer/Objects/Folder[@name='$TargetFolder']" |
                     Select-Object -ExpandProperty Node -First 1
