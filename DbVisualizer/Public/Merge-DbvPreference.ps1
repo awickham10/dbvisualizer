@@ -135,27 +135,6 @@ function Merge-DbvPreference {
                     Select-Object -ExpandProperty Node
 
                 $folderXml.InnerXml  = $masterFolderXml.InnerXml
-
-                # remove from target
-                $targetFolderXml = $targetXml |
-                    Select-Xml -XPath "/DbVisualizer/Objects/Folder[@name='$TargetFolder']" |
-                    Select-Object -ExpandProperty Node -First 1
-
-                foreach ($targetObject in $targetFolderXml.GetEnumerator()) {
-                    Write-Verbose "Should remove $singularString $($targetObject.$compareProperty)?"
-
-                    $xpath = "/DbVisualizer/$groupString/$singularString[$compareOperator$compareProperty = '$($targetObject.$compareProperty)']"
-                    Write-Verbose "Searching master XML with $xpath"
-                    $masterObject = $masterXml |
-                        Select-Xml -XPath $xpath |
-                        Select-Object -ExpandProperty Node -First 1
-
-                    # remove
-                    if (-not $masterObject) {
-                        Write-Verbose "Removing $singularString $compareProperty $($targetObject.$compareProperty)"
-                        $targetFolderXml.RemoveChild($targetObject)
-                    }
-                }
             }
         }
     }
