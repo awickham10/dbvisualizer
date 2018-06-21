@@ -7,13 +7,13 @@ Describe 'Module Manifest Tests' {
         Set-StrictMode -Version 3.0
 
         It 'Should load' {
-            $Module = Get-Module $ModuleName
-            $Module.Name | Should be $ModuleName
+            $module = Get-Module $ModuleName
+            $module | Should -Not -BeNullOrEmpty
         }
     }
 
     It 'Passes Test-ModuleManifest' {
-        Test-ModuleManifest -Path $ModuleManifestPath | Should Not BeNullOrEmpty
+        Test-ModuleManifest -Path $ModuleManifestPath | Should -Not -BeNullOrEmpty
         $? | Should Be $true
     }
 }
