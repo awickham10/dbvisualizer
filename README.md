@@ -7,7 +7,7 @@ The **DbVisualizer** PowerShell module allows for enterprise management of DbVis
 This is the currently released version of the module. If you want to use this module download this branch.
 
 [![codecov](https://codecov.io/gh/awickham10/dbvisualizer/branch/master/graph/badge.svg)](https://codecov.io/gh/sqlmdr/sqlmdr/branch/master)
-[![Build status](https://ci.appveyor.com/api/projects/status/fmycgp6jowf7v2uy?svg=true)](https://ci.appveyor.com/project/sqlmdr/dbvisualizer)
+[![Build status](https://ci.appveyor.com/api/projects/status/fmycgp6jowf7v2uy/branch/master?svg=true)](https://ci.appveyor.com/project/sqlmdr/dbvisualizer/branch/master)
 
 ### dev
 This is the development branch for new features and bug fixes. If you are planning on contributing please
