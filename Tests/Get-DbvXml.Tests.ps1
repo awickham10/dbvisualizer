@@ -1,6 +1,6 @@
 . "$PSScriptRoot\Header.ps1"
 
-Describe 'Merge-DbvPreference Tests' {
+Describe 'Get-DbvXml Tests' {
     InModuleScope -ModuleName 'DbVisualizer' {
         Context 'Command Usage' {
             $command = Get-Command -Module 'DbVisualizer' -Name 'Get-DbvXml'
