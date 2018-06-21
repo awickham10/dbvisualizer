@@ -5,7 +5,7 @@ Describe 'Merge-DbvPreference Tests' {
         Context 'Command Usage' {
             $command = Get-Command -Module 'DbVisualizer' -Name 'Merge-DbvPreference'
 
-            It 'Should havve a Category parameter' {
+            It 'Should have a Category parameter' {
                 $command.Parameters.ContainsKey('Category') | Should Be $true
             }
 
@@ -137,6 +137,16 @@ Describe 'Merge-DbvPreference Tests' {
                 $updatedFolder = $script:updatedXml.DbVisualizer.Objects.Folder | Where-Object { $_.Name -eq 'Managed' }
                 $updatedFolderDb = $updatedFolder.Database | Where-Object { $_.id -eq $master.id }
                 $updatedFolderDb.id | Should -Be $master.id
+            }
+
+            It "Adds TargetFolder if it doesn't exist" {
+                $targetNoFolderPath = '.\Tests\MockTargetNoFolder.xml'
+
+                Merge-DbvPreference -Category 'Databases' -MasterPath $masterPath -TargetPath $targetNoFolderPath -TargetFolder 'Managed'
+                Assert-MockCalled -CommandName 'Save-DbvXml' -Times 1
+
+                $updatedFolder = $script:updatedXml.DbVisualizer.Objects.Folder | Where-Object { $_.name -eq 'Managed' }
+                $updatedFolder | Should -Not -BeNullOrEmpty
             }
 
             It "Updates and doesn't change userid or password" {
