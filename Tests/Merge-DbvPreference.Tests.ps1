@@ -40,7 +40,10 @@ Describe 'Merge-DbvPreference Tests' {
             }
 
             It 'Should enforce usage of TargetFolder when Category is Databases' {
-                { Merge-DbvPreference -Category 'Databases' -MasterPath 'C:\MadeUpMasterPath.xml' -TargetPath 'C:\MadeUpTargetPath.xml' } | Should Throw
+                Mock -CommandName 'Test-Path' -ParameterFilter { $Path -eq 'C:\MadeUpMasterPath.xml' } -MockWith { $true }
+                Mock -CommandName 'Test-Path' -ParameterFilter { $Path -eq 'C:\MadeUpTargetPath.xml' } -MockWith { $true }
+
+                { Merge-DbvPreference -Category 'Databases' -MasterPath 'C:\MadeUpMasterPath.xml' -TargetPath 'C:\MadeUpTargetPath.xml' } | Should Throw 'When merging databases you must specify a target folder. Merging into the root folder is not supported.'
 
                 Assert-MockCalled -CommandName 'Test-Path' -ParameterFilter { $Path -eq 'C:\MadeUpMasterPath.xml' } -Times 1
                 Assert-MockCalled -CommandName 'Test-Path' -ParameterFilter { $Path -eq 'C:\MadeUpTargetPath.xml' } -Times 1

@@ -46,16 +46,16 @@ function Merge-DbvPreference {
     )
 
     begin {
+        if ($Category -contains 'Databases' -and (-not $PSBoundParameters.ContainsKey('TargetFolder') -or $TargetFolder -eq '')) {
+            throw 'When merging databases you must specify a target folder. Merging into the root folder is not supported.'
+        }
+
         $masterXml = Get-DbvXml -Path $MasterPath
         $targetXml = Get-DbvXml -Path $TargetPath
     }
 
     process {
         foreach ($cat in $Category) {
-            if ($cat -eq 'Databases' -and (-not $PSBoundParameters.ContainsKey('TargetFolder') -or $TargetFolder -eq '')) {
-                throw 'When merging databases you must specify a target folder. Merging into the root folder is not supported.'
-            }
-
             switch ($cat) {
                 'Drivers' {
                     $groupString = 'Drivers'
