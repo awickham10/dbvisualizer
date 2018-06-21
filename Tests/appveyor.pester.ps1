@@ -82,8 +82,6 @@ choco install codecov | Out-Null
 # install required modules
 $requiredModules = @(
     'Pester',
-    'PSFramework',
-    'dbatools',
     'PSScriptAnalyzer'
 )
 

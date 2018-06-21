@@ -7,6 +7,10 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMGE: Visual Studio 2015
       APPVEYOR_SAVE_CACHE_ON_ERROR: true
 
+cache:
+  - C:\Program Files\WindowsPowerShell\Modules\PSScriptAnalyzer -> appveyor.yml
+  - C:\Program Files\WindowsPowerShell\Modules\Pester -> appveyor.yml
+
 test_script:
   - ps: .\Tests\appveyor.pester.ps1 -IncludeCoverage
   - ps: . .\Tests\appveyor.pester.ps1 -Finalize -IncludeCoverage
