@@ -9,7 +9,7 @@ Describe 'Module Manifest Tests' {
 
         It 'Should load' {
             $module = Get-Module -Name $ModuleName
-            $module.Name | Should be $ModuleName
+            $module.Name | Should -Be $ModuleName
         }
     }
 

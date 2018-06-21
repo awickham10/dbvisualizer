@@ -6,12 +6,15 @@ function Get-DbvXml {
     )
 
     process {
-        $content = Get-Content -Path $Path -Raw
+        $content = Get-Content -Path $Path -Raw -ErrorAction 'Stop'
 
-        if (-not $content) {
-            throw "Could not read file: $Path"
+        try {
+            $xml = [xml]$content
+        }
+        catch {
+            throw "Could not parse XML in '$Path'"
         }
 
-        [xml]$content
+        return $xml
     }
 }
