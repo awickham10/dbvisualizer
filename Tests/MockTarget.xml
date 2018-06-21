@@ -347,10 +347,10 @@
       <Notes />
       <Url />
       <Driver>SQL Server (Microsoft)</Driver>
-      <Userid />
+      <Userid>DoNotReplaceMe</Userid>
       <Profile>auto</Profile>
       <Type>sqlserver</Type>
-      <Password></Password>
+      <Password>DoNotReplaceMe</Password>
       <ServerInfoFormat>1</ServerInfoFormat>
       <Properties>
         <Property key="integratedSecurity">true</Property>

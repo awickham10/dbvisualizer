@@ -136,7 +136,7 @@ Describe 'Merge-DbvPreference Tests' {
                 $updatedFolderDb.id | Should -Be $master.id
             }
 
-            It 'Updates' {
+            It "Updates and doesn't change userid or password" {
                 $databaseAlias = 'FakeDatabaseToUpdate'
 
                 $master = $masterXml.DbVisualizer.Databases.Database | Where-Object { $_.Alias -eq $databaseAlias }
@@ -154,6 +154,9 @@ Describe 'Merge-DbvPreference Tests' {
                 $afterServer = $after.UrlVariables.Driver.UrlVariable | Where-Object { $_.UrlVariableName -eq 'Server' }
 
                 $afterServer.'#text' | Should -Be $masterServer.'#text'
+
+                $after.Userid | Should -Not -Be $master.Userid
+                $after.Password | Should -Not -Be $master.Password
             }
 
             It "Removes" {

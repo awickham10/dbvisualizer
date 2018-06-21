@@ -68,6 +68,7 @@ function Merge-DbvPreference {
                     $singularString = 'Database'
                     $compareProperty = 'id'
                     $compareOperator = '@'
+                    $keepProperties = @('Userid', 'Password')
                 }
             }
 
@@ -91,36 +92,23 @@ function Merge-DbvPreference {
                         Select-Object -ExpandProperty Node
 
                     $targetGroup.InnerXml += $masterObject.OuterXml
-
-                    # if database, add to target folder
-                    <#
-                    if ($cat -eq 'Databases') {
-                        Write-Verbose "Synchronizing folder $TargetFolder"
-
-                        $objectsXml = $targetXml |
-                            Select-Xml -XPath "/DbVisualizer/Objects" |
-                            Select-Object -ExpandProperty Node
-
-                        if (-not ($objectsXml.Folder | Where-Object { $_.name -eq $TargetFolder }))
-                        {
-                            Write-Verbose "Adding folder $TargetFolder"
-                            $objectsXml.InnerXml = "<Folder name=`"$TargetFolder`"></Folder>" + $objectsXml.InnerXml
-                        }
-
-                        $folderXml = $targetXml |
-                            Select-Xml -XPath "/DbVisualizer/Objects/Folder[@name='$TargetFolder']" |
-                            Select-Object -ExpandProperty Node
-
-                        # add to the target folder
-                        Write-Verbose "Adding Database ID $($masterObject.$compareProperty) to $TargetFolder folder"
-                        $folderXml.InnerXml += "<Database id=`"$($masterObject.$compareProperty)`"/>"
-                    }
-                    #>
                 }
                 # update
                 else {
                     Write-Verbose "Updating $singularString $($masterObject.$compareProperty)"
+
+                    # save properties
+                    $keep = @{}
+                    foreach ($keepProperty in $keepProperties) {
+                        $keep[$keepProperty] = $targetObject.$keepProperty
+                    }
+
                     $targetObject.InnerXml = $masterObject.InnerXml
+
+                    # replace properties
+                    foreach ($keepProperty in $keepProperties) {
+                        $targetObject.$keepProperty = $keep[$keepProperty]
+                    }
                 }
             }
 

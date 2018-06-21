@@ -379,7 +379,7 @@
       <Notes />
       <Url />
       <Driver>SQL Server (Microsoft)</Driver>
-      <Userid />
+      <Userid>TestUserId</Userid>
       <Profile>auto</Profile>
       <Type>sqlserver</Type>
       <Password></Password>
